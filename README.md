@@ -1,16 +1,21 @@
-This is a simple command-line tool for controlling the "USB Net Power 8800"
-from Linux (etc.) using Python and PyUSB.  It shows up under lsusb as:
+Power Cycle the USB connected plug.
 
-> ID 067b:2303 Prolific Technology, Inc. PL2303 Serial Port
+Install "pyusb"
 
-But, from what I can tell, none of the serial port features are ever used,
-and all you really need is one USB control transfer for reading the current
-state, and another for setting it.
+pip3 install -r  power.req
 
-The device is basically a box with a USB port and a switchable power outlet.
-It has the unfortunate property that disconnecting it from USB immediately
-kills the power, which reduces its usefulness.
 
-### Links to similar projects: ###
-  * [Plain C port, with faster startup time.](http://emergent.unpythonic.net/01330399156)
-  * [Fork containing an install script and a few extra features.](https://github.com/nickodell/usbnetpower)
+NB: You need to run as root in order to have enough privileges.
+
+
+python3 power.py query
+python3 power.py on
+python3 power.py off
+python3 power.py reboot
+
+
+To power cycle the RTS DUT you can also just run:
+
+sudo ./power_cycle
+
+

@@ -1,0 +1,6 @@
+Package       Version
+------------- -------
+pip           21.2.4
+pkg_resources 0.0.0
+pyusb         1.2.1
+setuptools    39.0.1
