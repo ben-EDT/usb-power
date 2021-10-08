@@ -1,2 +1,2 @@
 #!/bin/sh
-python3 /home/a3h/projects/rts/power.py reboot 1
+python3 /home/a3h/projects/rts/power.py cycle 1

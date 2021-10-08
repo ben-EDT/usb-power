@@ -1,103 +1,50 @@
-#!/usr/bin/env python
-
-# Copyright (C) 2011  Paul Marks  http://www.pmarks.net/
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-
-# Project homepage: http://code.google.com/p/usbnetpower8800/
-#
-# This is a simple command-line tool for controlling the "USB Net Power 8800"
-# from Linux (etc.) using Python and PyUSB.  It shows up under lsusb as:
-#
-#     ID 067b:2303 Prolific Technology, Inc. PL2303 Serial Port
-#
-# But, from what I can tell, none of the serial port features are ever used,
-# and all you really need is one USB control transfer for reading the current
-# state, and another for setting it.
-#
-# The device is basically a box with a USB port and a switchable power outlet.
-# It has the unfortunate property that disconnecting it from USB immediately
-# kills the power, which reduces its usefulness.
-#
-# To install Python and usb.core on Ubuntu:
-#  $ sudo apt-get install python python-setuptools
-#  $ sudo easy_install pyusb
-#
-# If you have a permission error using the script and udev is used on your
-# system, it can be used to apply the correct permissions. Example:
-#  $ cat /etc/udev/rules.d/51-usbpower.rules
-#  SUBSYSTEM=="usb", ATTR{idVendor}=="067b", MODE="0666", GROUP="plugdev"
-
-
 import sys
-import time
-import usb.core
-
-usage = (
-    "Controller for the USB Net Power 8800\n"
-    "Usage: %s on|off|toggle|reboot <seconds>|query\n")
+from time import sleep
+from usb import core
 
 
 class Power(object):
     def __init__(self):
-        # Find the device.
-        self.dev = usb.core.find(idVendor=0x067b, idProduct=0x2303)
-        if self.dev is None:
+        self.plug = core.find(idVendor=0x067b, idProduct=0x2303)
+        if self.plug is None:
             raise ValueError("Device not found")
 
-    def IsOn(self):
-        # Return True if the power is currently switched on.
-        ret = self.dev.ctrl_transfer(0xc0, 0x01, 0x0081, 0x0000, 0x0001)
-        return ret[0] == 0xa0
+    def is_on(self):
+        return self.plug.ctrl_transfer(0xc0, 0x01, 0x0081, 0x0000, 0x0001)[0] == 0xa0
 
-    def Set(self, on):
-        # If True, turn the power on, else turn it off.
-        code = 0xa0 if on else 0x20
-        self.dev.ctrl_transfer(0x40, 0x01, 0x0001, code, [])
+    def toggle(self, state_on):
+        self.plug.ctrl_transfer(0x40, 0x01, 0x0001, 0xa0 if state_on else 0x20, [])
 
 
-def main(argv):
+def main(args):
+    commands = ["toggle", "cycle", "state"]
     try:
-        cmd = argv[1].lower()
+        cmd = args[1].lower()
+        if cmd not in commands:
+            print(f"available commands: {commands}")
+            print("cycle takes an optional sleep (default 1 second)")
+            return -1
     except IndexError:
-        cmd = ""
+        return -1
 
     power = Power()
 
-    if cmd == "on":
-        power.Set(True)
-    elif cmd == "off":
-        power.Set(False)
-    elif cmd == "toggle":
-        power.Set(not power.IsOn())
-    elif cmd == "reboot":
-        power.Set(False)
+    if cmd == "toggle":
+        power.toggle(not power.is_on())
+    elif cmd == "cycle":
+        power.toggle(False)
         try:
-            time.sleep(float(argv[2]))
+            sleep(float(args[2]))
         except (IndexError, ValueError):
-            time.sleep(1.0)
-        power.Set(True)
-    elif cmd == "query":
-        on = power.IsOn()
-        sys.stdout.write("Power: %s\n" % ("on" if on else "off"))
-        return 0 if on else 1
+            sleep(1.0)
+        power.toggle(True)
+    elif cmd == "state":
+        print(f"Plug power is {'on' if power.is_on() else 'off'}")
     else:
-        sys.stdout.write(usage % argv[0])
         return -1
     return 0
 
 
-if '__main__' == __name__:
+if __name__ == '__main__':
     ret = main(sys.argv)
     sys.exit(ret)

@@ -10,7 +10,7 @@ Install requirements : <code>pip3 install -r  power.req</code>
 
 To power cycle the RTS DUT you can run from ~/ : <code>sudo ./power_cycle</code>
 
-Which has a 1 second pause between power off and power on.
+Which has a 1-second pause between power off and power on.
 
 NB: You need to run as root in order to have enough privileges.
 
