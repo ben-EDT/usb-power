@@ -14,7 +14,6 @@ Which has a 1-second pause between power off and power on.
 
 NB: You need to run as root in order to have enough privileges.
 
-* python3 power.py query
 * python3 power.py toggle
 * python3 power.py state
 * python3 power.py cycle
