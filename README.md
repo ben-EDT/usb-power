@@ -15,6 +15,8 @@ Which has a 1-second pause between power off and power on.
 NB: You need to run as root in order to have enough privileges.
 
 * python3 power.py query
-* python3 power.py on
-* python3 power.py off
-* python3 power.py reboot < seconds to wait between power off and power on >
+* python3 power.py toggle
+* python3 power.py state
+* python3 power.py cycle
+
+You can pass an integer or float to "cycle" to determine the pause (in seconds) between power off and power on. Defaults to 1.
