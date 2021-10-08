@@ -10,10 +10,11 @@ class Power(object):
             raise ValueError("Device not found")
 
     def is_on(self):
-        return self.plug.ctrl_transfer(0xc0, 0x01, 0x0081, 0x0000, 0x0001)[0] == 0xa0
+        res = self.plug.ctrl_transfer(0xc0, 0x01, 0x0081, 0x0000, 0x0001)
+        return res[0] == 0xa0
 
     def toggle(self, state_on):
-        self.plug.ctrl_transfer(0x40, 0x01, 0x0001, 0xa0 if state_on else 0x20, [])
+        self.plug.ctrl_transfer(0x40, 0x01, 0x0001, 0xa0 if state_on else 0x20)
 
 
 def main(args):
