@@ -4,7 +4,7 @@ Clone this repo into the NUC home user directory : <code>git clone https://githu
 
 <code>cd rts</code>
 
-Install requirements : <code>pip3 install -r  power.req</code>
+Install requirements : <code>pip3 install -r  requirements.txt</code>
 
 <code>mv power_cycle ../</code>
 
